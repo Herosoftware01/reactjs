@@ -82,7 +82,6 @@ function FiveColumnDataTable() {
             buyer: String(item.buyer_sh || 'N/A'),
             unit: String(item.punit_sh || 'N/A'),
             style: String(item.styleid || 'N/A'),
-            merch: String(item.merch || 'N/A'),
             qty: String(item.quantity || 'N/A'),
             u46: String(item.u46 || 'N/A'),
             styleno: String(item.styleno || 'N/A'),

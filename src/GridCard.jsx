@@ -87,7 +87,7 @@ function FiveColumnDataTable() {
             u46: String(item.u46 || 'N/A'),
             styleno: String(item.styleno || 'N/A'),
             ourdeldate: String(item.ourdeldate || 'N/A'),
-            podate: String(item.podate || 'N/A'),
+            date: String(item.date || 'N/A'),
             season: String(item.season || 'N/A'),
           }))
           .filter(item => item.jobno !== 'N/A');
@@ -272,7 +272,7 @@ function FiveColumnDataTable() {
             today.setHours(0, 0, 0, 0); // Normalize today to midnight
 
             const finalDateObj = parseDateToDateObject(item.finaldelvdate);
-            const poDateObj = parseDateToDateObject(item.podate);
+            const poDateObj = parseDateToDateObject(item.date);
 
             const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
@@ -317,25 +317,23 @@ function FiveColumnDataTable() {
                   <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>{item.buyer} </Typography>
                   <Typography variant="caption" display="block" fontSize={'0.9rem'}>UNIT: {item.unit}</Typography>
                   <Typography variant="caption" display="block" fontSize={'0.9rem'}>QTY: {item.qty}</Typography>
-                  <Typography variant="caption" display="block" fontSize={'0.9rem'}>Dt: {item.finaldelvdate}</Typography>
+                  <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>SO: {item.styleno}</Typography>
                 </Box>
 
                 <Box sx={{ width: '35%', p: 1, overflow: 'hidden' }}>
 
-                  <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>SO: {item.styleno}</Typography>
-                  <Typography variant="caption" display="block" noWrap fontSize={'0.82rem'}>OD: {item.ourdeldate}</Typography>
-                  <Typography variant="caption" display="block" fontSize={'0.9rem'}>PD: {item.podate}</Typography>
-                  <Typography variant="caption" display="block" fontSize={'0.85rem'}>SE: {item.season}</Typography>
-                  {/* Displaying poDiff */}
+                  <Typography variant="caption" display="block" fontSize={'0.9rem'}>FD: {item.finaldelvdate}</Typography>
+                  <Typography variant="caption" display="block" fontSize={'0.9rem'}>DT: {item.date}</Typography>
                   {poDiff !== null && (
-                    <Typography variant="caption" display="block" sx={{ fontSize: '0.85rem' }}>
-                      PDiff:{Math.abs(poDiff)} days
+                    <Typography variant="caption" display="block" sx={{ fontSize: '0.85rem', color: 'green', fontWeight: 'bold' }}>
+                      DT :{Math.abs(poDiff)} day
                     </Typography>
                   )}
-                  {/* Displaying finalDiff */}
+                  <Typography variant="caption" display="block" noWrap fontSize={'0.82rem'}>OD: {item.ourdeldate}</Typography>
+                  <Typography variant="caption" display="block" fontSize={'0.85rem'}>SE: {item.season}</Typography>
                   {finalDiff !== null && (
                     <Typography variant="caption" sx={{ color: finalDiff < 0 ? 'red' : 'green', fontWeight: 'bold', display: 'block', fontSize: '0.85rem'  }}>
-                      {finalDiff < 0 ? `Delayed: ${Math.abs(finalDiff)}d` : `Due in: ${finalDiff}d`}
+                      {finalDiff < 0 ? `Delayed: ${Math.abs(finalDiff)}day` : `Due: ${finalDiff}day`}
                     </Typography>
                   )}
                 </Box>

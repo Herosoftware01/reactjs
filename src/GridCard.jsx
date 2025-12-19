@@ -88,7 +88,7 @@ function FiveColumnDataTable() {
             styleno: String(item.styleno || 'N/A'),
             ourdeldate: String(item.ourdeldate || 'N/A'),
             date: String(item.date || 'N/A'),
-            season: String(item.season || 'N/A'),
+            merch: String(item.merch || 'N/A'),
           }))
           .filter(item => item.jobno !== 'N/A');
         setRawData(data);
@@ -317,12 +317,12 @@ function FiveColumnDataTable() {
                   <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>{item.buyer} </Typography>
                   <Typography variant="caption" display="block" fontSize={'0.9rem'}>UNIT: {item.unit}</Typography>
                   <Typography variant="caption" display="block" fontSize={'0.9rem'}>QTY: {item.qty}</Typography>
-                  <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>SO: {item.styleno}</Typography>
+                  <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>ST: {item.styleno}</Typography>
                 </Box>
 
                 <Box sx={{ width: '35%', p: 1, overflow: 'hidden' }}>
 
-                  <Typography variant="caption" display="block" fontSize={'0.85rem'}>SE: {item.season}</Typography>
+                  <Typography variant="caption" display="block" fontSize={'0.85rem'}>MERCH: {item.merch}</Typography>
                   <Typography variant="caption" display="block" noWrap fontSize={'0.82rem'}>OD: {item.ourdeldate}</Typography>
                   <Typography variant="caption" display="block" fontSize={'0.9rem'}>DT: {item.date}</Typography>
                   {poDiff !== null && (

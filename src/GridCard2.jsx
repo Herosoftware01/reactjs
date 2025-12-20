@@ -180,8 +180,8 @@ function FiveColumnDataTable() {
       const pB = getPriority(b.jobno);
       if (pA !== pB) return pA - pB;
 
-      const da = parseDateToDateObject(a.finaldelvdate);
-      const db = parseDateToDateObject(b.finaldelvdate);
+      const da = parseDateToDateObject(a.ourdeldate);
+      const db = parseDateToDateObject(b.ourdeldate);
       if (!da && !db) return 0;
       if (!da) return 1;
       if (!db) return -1;
@@ -540,6 +540,7 @@ function FiveColumnDataTable() {
 
                   <Typography variant="caption" display="block" fontSize={'0.85rem'}  backgroundColor={'#fca910ff'}>MERCH: <HighlightedText text={item.merch} highlight={searchTerm}/></Typography>
                   <Typography variant="caption" display="block" fontSize={'0.85rem'}  >abc: <HighlightedText text={item.abc} highlight={searchTerm}/> | <HighlightedText text={item.type.toLowerCase().replace("inside","in").replace("outside","out")}  highlight={searchTerm}/></Typography>
+                  <Typography variant="caption" display="block" fontSize={'0.8rem'}>U46: <HighlightedText text={item.u46} highlight={searchTerm}/></Typography>
                   <Typography variant="caption" display="block" fontSize={'0.8rem'}>DT: <HighlightedText text={item.date} highlight={searchTerm}/></Typography>
                   {poDiff !== null && (
                     <Typography variant="caption" display="block" sx={{ fontSize: '0.85rem', color: 'green', fontWeight: 'bold' }}>

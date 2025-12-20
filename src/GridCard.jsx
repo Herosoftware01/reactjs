@@ -58,7 +58,7 @@ function FiveColumnDataTable() {
   const [rawData, setRawData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [abcFilter, setAbcFilter] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
   const [jobNoSearch, setJobNoSearch] = useState('');
   const [jobSeriesFilter, setJobSeriesFilter] = useState('ALL'); 
@@ -66,6 +66,18 @@ function FiveColumnDataTable() {
   const [u46Filter, setU46Filter] = useState('ALL'); 
   const [sortType, setSortType] = useState('date_asc');
   const [showFiltersMobile, setShowFiltersMobile] = useState(false); 
+  const [typeFilter, setTypeFilter] = useState('ALL');
+  const [u8Filter, setU8Filter] = useState('ALL');
+  const [u14Filter, setU14Filter] = useState('ALL');
+  const [u36Filter, setU36Filter] = useState('ALL');
+  const [u45Filter, setU45Filter] = useState('ALL');
+  const [u141Filter, setU141Filter] = useState('ALL');
+  const [u25Filter, setU25Filter] = useState('ALL');
+  
+  const toNumber = (val) => {
+    const n = Number(val);
+    return isNaN(n) ? 0 : n;
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,6 +100,14 @@ function FiveColumnDataTable() {
             ourdeldate: String(item.ourdeldate || 'N/A'),
             date: String(item.date || 'N/A'),
             merch: String(item.merch || 'N/A'),
+            abc: String(item.abc || 'N/A'),
+            type: String(item.production_type_inside_outside || 'N/A'),
+            u8: String(item.u8 || 'N/A'),
+            u14: String(item.u14 || 'N/A'),
+            u36: String(item.u36 || 'N/A'),
+            u45: String(item.u45 || 'N/A'),
+            u141: String(item.u141 || 'N/A'),
+            u25: String(item.u25 || 'N/A')
           }))
           .filter(item => item.jobno !== 'N/A');
         setRawData(data);
@@ -100,11 +120,38 @@ function FiveColumnDataTable() {
     fetchData();
   }, []);
 
+  const abcOptions = useMemo(() => {
+    const unique = [...new Set(rawData.map(i => i.abc).filter(Boolean))];
+    return unique;
+  }, [rawData]);
+
+  const typeOptions = useMemo(() => {
+    return [...new Set(
+      rawData
+        .map(i => i.type)
+        .filter(val => val && val !== 'N/A')
+    )];
+  }, [rawData]);
+
+  const u25Options = useMemo(() => {
+  return [...new Set(
+    rawData
+      .map(i => i.u25)
+      .filter(val => val && val !== 'N/A')
+      )].sort(); 
+    }, [rawData]);
+
   const filteredAndSortedData = useMemo(() => {
     let temp = [...rawData];
     if (jobSeriesFilter === 'H') temp = temp.filter(item => item.jobno.toUpperCase().startsWith('H'));
     if (jobSeriesFilter === 'J') temp = temp.filter(item => item.jobno.toUpperCase().startsWith('J'));
     if (jobNoSearch) temp = temp.filter(item => item.jobno.toLowerCase().includes(jobNoSearch.toLowerCase()));
+    if (u8Filter !== 'ALL') { temp = temp.filter(item => item.u8 === u8Filter);}
+    if (u14Filter !== 'ALL') { temp = temp.filter(item => item.u14 === u14Filter);}
+    if (u36Filter !== 'ALL') { temp = temp.filter(item => item.u36 === u36Filter);}
+    if (u45Filter !== 'ALL') { temp = temp.filter(item => item.u45 === u45Filter);}
+    if (u25Filter !== 'ALL') { temp = temp.filter(item => item.u25 === u25Filter); }
+    if (u141Filter !== 'ALL') { temp = temp.filter(item => item.u141 === u141Filter);}
     if (showOnlyWithoutImage) temp = temp.filter(item => !hasValidImage(item.image));
     if (u46Filter === 'WITH') temp = temp.filter(item => hasValidu46(item.u46));
     if (u46Filter === 'WITHOUT') temp = temp.filter(item => !hasValidu46(item.u46));
@@ -112,6 +159,15 @@ function FiveColumnDataTable() {
       const s = searchTerm.toLowerCase();
       temp = temp.filter(item => Object.values(item).some(val => String(val).toLowerCase().includes(s)));
     }
+    if (abcFilter !== 'ALL') {
+      temp = temp.filter(item => item.abc === abcFilter);
+    }
+
+    if (typeFilter !== 'ALL') {
+      temp = temp.filter(item => item.type === typeFilter);
+    }
+
+    
 
     temp.sort((a, b) => {
       const getPriority = (jobno) => {
@@ -132,7 +188,23 @@ function FiveColumnDataTable() {
       return sortType === 'date_asc' ? da - db : db - da;
     });
     return temp;
-  }, [rawData, jobNoSearch, showOnlyWithoutImage, u46Filter, searchTerm, sortType, jobSeriesFilter]);
+  }, [rawData, jobNoSearch, showOnlyWithoutImage, u46Filter, searchTerm, sortType, jobSeriesFilter,abcFilter,typeFilter,u8Filter,u14Filter,u36Filter,u45Filter,u141Filter,u25Filter]);
+
+
+   /* ---------- QTY CALC ---------- */
+  const totalQty = useMemo(() => {
+    return rawData.reduce((sum, item) => {
+      const qty = Number(item.qty);
+      return sum + (isNaN(qty) ? 0 : qty);
+    }, 0);
+  }, [rawData]);
+
+  const filteredQty = useMemo(() => {
+  return filteredAndSortedData.reduce((sum, item) => {
+    const qty = Number(item.qty);
+    return sum + (isNaN(qty) ? 0 : qty);
+  }, 0);
+}, [filteredAndSortedData]);
 
   const getUnitColor = (unitName) => {
     if (!unitName) return '#fff';
@@ -176,7 +248,7 @@ function FiveColumnDataTable() {
           <TextField
             size="small" label="Global Search" value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            sx={{ gridColumn: { xs: 'span 3', md: 'auto' } }}
+            sx={{ gridColumn: { xs: 'span 5', md: 'auto' } }}
           />
 
           <Button 
@@ -190,33 +262,184 @@ function FiveColumnDataTable() {
             {showFiltersMobile ? 'HIDE' : 'SHOW'} 
           </Button>
 
+            <Typography
+              sx={{
+                textAlign: 'center',
+                fontWeight: 200,
+                fontSize: { xs: '0.8rem', md: '0.8rem' },
+                gridColumn: { xs: 'span 4', md: 'auto' },
+                backgroundColor: '#ffffffff', 
+                color: '#000000ff',
+                borderRadius: 1,
+                border: '1px solid #00000057'
+              }}
+            >
+              NO:{filteredAndSortedData.length}/{rawData.length}
+              <br />
+              Q: {filteredQty.toLocaleString()}
+            </Typography>
           <TextField
-            select size="small" label="Series" value={jobSeriesFilter}
+            select size="small" label="Sam Ord" value={jobSeriesFilter}
             onChange={e => setJobSeriesFilter(e.target.value)}
             sx={{ 
-              gridColumn: { xs: 'span 3', md: 'auto' },
+              gridColumn: { xs: 'span 4', md: 'auto' },
               display: { xs: showFiltersMobile ? 'flex' : 'none', md: 'flex' }
             }}
           >
-            <MenuItem value="ALL">All</MenuItem>
+            <MenuItem value="ALL">H&J</MenuItem>
             <MenuItem value="H">H</MenuItem>
             <MenuItem value="J">J</MenuItem>
+          </TextField>
+
+
+          <TextField
+            select
+            size="small"
+            label="ABC"
+            value={abcFilter}
+            onChange={e => setAbcFilter(e.target.value)}
+            sx={{ 
+              gridColumn: { xs: 'span 4', md: 'auto' },
+              display: { xs: showFiltersMobile ? 'flex' : 'none', md: 'flex' }
+            }}
+          >
+            <MenuItem value="ALL">ABC...</MenuItem>
+            {abcOptions.map(val => (
+              <MenuItem key={val} value={val}>{val}</MenuItem>
+            ))}
+          </TextField>
+
+          <TextField
+            select
+            size="small"
+            label="in/out"
+            value={typeFilter}
+            onChange={e => setTypeFilter(e.target.value)}
+            sx={{ 
+              gridColumn: { xs: 'span 4', md: 'auto' },
+              display: { xs: showFiltersMobile ? 'flex' : 'none', md: 'flex' }
+            }}
+          >
+            <MenuItem value="ALL">IN & OUT</MenuItem>
+            {typeOptions.map(val => (
+              <MenuItem key={val} value={val}>{val}</MenuItem>
+            ))}
           </TextField>
 
           <TextField
             size="small" label="Job No" value={jobNoSearch}
             onChange={e => setJobNoSearch(e.target.value)}
             sx={{ 
-              gridColumn: { xs: 'span 3', md: 'auto' },
+              gridColumn: { xs: 'span 4', md: 'auto' },
               display: { xs: showFiltersMobile ? 'flex' : 'none', md: 'flex' }
             }}
           />
 
           <TextField
+              select
+              size="small"
+              label="U8-FAB"
+              value={u8Filter}
+              onChange={e => setU8Filter(e.target.value)}
+              sx={{ 
+                gridColumn: { xs: 'span 4', md: 'auto' },
+                display: { xs: showFiltersMobile ? 'flex' : 'none', md: 'flex' }
+              }}
+            >
+              <MenuItem value="ALL">All</MenuItem>
+              <MenuItem value="O">O </MenuItem>
+              <MenuItem value="R">R</MenuItem>
+            </TextField>
+
+          <TextField
+              select
+              size="small"
+              label="U14-DYE"
+              value={u14Filter}
+              onChange={e => setU14Filter(e.target.value)}
+              sx={{ 
+                gridColumn: { xs: 'span 4', md: 'auto' },
+                display: { xs: showFiltersMobile ? 'flex' : 'none', md: 'flex' }
+              }}
+            >
+              <MenuItem value="ALL">All</MenuItem>
+              <MenuItem value="O">O </MenuItem>
+              <MenuItem value="N">N </MenuItem>
+              <MenuItem value="R">R</MenuItem>
+            </TextField>
+
+          <TextField
+              select
+              size="small"
+              label="U36-FAB IN"
+              value={u36Filter}
+              onChange={e => setU36Filter(e.target.value)}
+              sx={{ 
+                gridColumn: { xs: 'span 4', md: 'auto' },
+                display: { xs: showFiltersMobile ? 'flex' : 'none', md: 'flex' }
+              }}
+            >
+              <MenuItem value="ALL">All</MenuItem>
+              <MenuItem value="N">N </MenuItem>
+              <MenuItem value="R">R</MenuItem>
+            </TextField>
+
+          <TextField
+              select
+              size="small"
+              label="U45-UNIT"
+              value={u45Filter}
+              onChange={e => setU45Filter(e.target.value)}
+              sx={{ 
+                gridColumn: { xs: 'span 4', md: 'auto' },
+                display: { xs: showFiltersMobile ? 'flex' : 'none', md: 'flex' }
+              }}
+            >
+              <MenuItem value="ALL">All</MenuItem>
+              <MenuItem value="R">R</MenuItem>
+            </TextField>
+
+          <TextField
+              select
+              size="small"
+              label="U141-SAM"
+              value={u141Filter}
+              onChange={e => setU141Filter(e.target.value)}
+              sx={{ 
+                gridColumn: { xs: 'span 4', md: 'auto' },
+                display: { xs: showFiltersMobile ? 'flex' : 'none', md: 'flex' }
+              }}
+            >
+              <MenuItem value="ALL">All</MenuItem>
+              <MenuItem value="R">R</MenuItem>
+              <MenuItem value="O">O</MenuItem>
+            </TextField>
+
+            <TextField
+              select
+              size="small"
+              label="U25"
+              value={u25Filter}
+              onChange={e => setU25Filter(e.target.value)}
+              SelectProps={{
+                MenuProps: { PaperProps: { sx: { maxHeight: 300 } } }
+              }}
+              sx={{ 
+                gridColumn: { xs: 'span 4', md: 'auto' },
+                display: { xs: showFiltersMobile ? 'flex' : 'none', md: 'flex' }
+              }}
+            >
+              <MenuItem value="ALL">U25</MenuItem>
+              {u25Options.map(val => (
+                <MenuItem key={val} value={val}>{val}</MenuItem>
+              ))}
+            </TextField>
+
+          <TextField
             select size="small" label="U46" value={u46Filter}
             onChange={e => setU46Filter(e.target.value)}
             sx={{ 
-              gridColumn: { xs: 'span 3', md: 'auto' },
+              gridColumn: { xs: 'span 4', md: 'auto' },
               display: { xs: showFiltersMobile ? 'flex' : 'none', md: 'flex' }
             }}
           >
@@ -229,7 +452,7 @@ function FiveColumnDataTable() {
             select size="small" label="Sort" value={sortType}
             onChange={e => setSortType(e.target.value)}
             sx={{ 
-              gridColumn: { xs: 'span 3', md: 'auto' },
+              gridColumn: { xs: 'span 4', md: 'auto' },
               display: { xs: showFiltersMobile ? 'flex' : 'none', md: 'flex' }
             }}
           >
@@ -241,20 +464,12 @@ function FiveColumnDataTable() {
             control={<Checkbox size="small" checked={showOnlyWithoutImage} onChange={e => setShowOnlyWithoutImage(e.target.checked)} />}
             label="No Img"
             sx={{ 
-              gridColumn: { xs: 'span 3', md: 'auto' },
+              gridColumn: { xs: 'span 4', md: 'auto' },
               display: { xs: showFiltersMobile ? 'flex' : 'none', md: 'flex' },
               ml: 0, '& .MuiFormControlLabel-label': { fontSize: {xs: '0.65rem', md: '1rem' }}
             }}
           />
 
-          <Typography 
-            sx={{ 
-              textAlign: 'center', fontWeight: 'semibold', fontSize: { xs: '0.8rem', md: '1.5rem' },
-              gridColumn: { xs: 'span 3', md: 'auto' }
-            }}
-          >
-             {filteredAndSortedData.length}/{rawData.length}
-          </Typography>
         </Box>
       </Box>
 
@@ -285,6 +500,8 @@ function FiveColumnDataTable() {
               ? Math.ceil((poDateObj - today) / MS_PER_DAY) 
               : null;
 
+    
+
             return (
               <Card key={i} sx={{ display: 'flex', height: 160, bgcolor: getUnitColor(item.unit), position: 'relative' }}>
                 {/* Serial Number Badge */}
@@ -312,24 +529,25 @@ function FiveColumnDataTable() {
                   <Typography fontWeight="bold" variant="body2" noWrap fontSize={'1.2rem'}>
                     <HighlightedText text={item.jobno} highlight={searchTerm || jobNoSearch} />
                   </Typography>
-                  <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>PO: {item.pono}</Typography>
-                  <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>{item.buyer} </Typography>
-                  <Typography variant="caption" display="block" fontSize={'0.9rem'}>UNIT: {item.unit}</Typography>
+                  <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>PO: <HighlightedText text={item.pono} highlight={searchTerm}/></Typography>
+                  <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}><HighlightedText text={item.buyer} highlight={searchTerm}/></Typography>
+                  <Typography variant="caption" display="block" fontSize={'0.9rem'}>UNIT: <HighlightedText text={item.unit} highlight={searchTerm}/></Typography>
                   <Typography variant="caption" display="block" fontSize={'0.9rem'}>QTY: {item.qty}</Typography>
-                  <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>ST: {item.styleno}</Typography>
+                  <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>ST: <HighlightedText text={item.styleno} highlight={searchTerm}/></Typography>
                 </Box>
 
                 <Box sx={{ width: '35%', p: 1, overflow: 'hidden' }}>
 
-                  <Typography variant="caption" display="block" fontSize={'0.85rem'}>MERCH: {item.merch}</Typography>
-                  <Typography variant="caption" display="block" noWrap fontSize={'0.82rem'}>OD: {item.ourdeldate}</Typography>
-                  <Typography variant="caption" display="block" fontSize={'0.9rem'}>DT: {item.date}</Typography>
+                  <Typography variant="caption" display="block" fontSize={'0.85rem'}  backgroundColor={'#fca910ff'}>MERCH: <HighlightedText text={item.merch} highlight={searchTerm}/></Typography>
+                  <Typography variant="caption" display="block" fontSize={'0.85rem'}  >abc: <HighlightedText text={item.abc} highlight={searchTerm}/> | <HighlightedText text={item.type.toLowerCase().replace("inside","in").replace("outside","out")}  highlight={searchTerm}/></Typography>
+                  <Typography variant="caption" display="block" noWrap fontSize={'0.82rem'}>OD: <HighlightedText text={item.ourdeldate} highlight={searchTerm}/></Typography>
+                  <Typography variant="caption" display="block" fontSize={'0.8rem'}>DT: <HighlightedText text={item.date} highlight={searchTerm}/></Typography>
                   {poDiff !== null && (
                     <Typography variant="caption" display="block" sx={{ fontSize: '0.85rem', color: 'green', fontWeight: 'bold' }}>
                       DT :{Math.abs(poDiff)} day
                     </Typography>
                   )}
-                  <Typography variant="caption" display="block" fontSize={'0.9rem'}>FD: {item.finaldelvdate}</Typography>
+                  <Typography variant="caption" display="block" backgroundColor='lightgreen' fontSize={'0.8rem'}>FD: {item.finaldelvdate}</Typography>
                   {finalDiff !== null && (
                     <Typography variant="caption" sx={{ color: finalDiff < 0 ? 'red' : 'green', fontWeight: 'bold', display: 'block', fontSize: '0.85rem'  }}>
                       {finalDiff < 0 ? `Delayed: ${Math.abs(finalDiff)}day` : `Due: ${finalDiff}day`}

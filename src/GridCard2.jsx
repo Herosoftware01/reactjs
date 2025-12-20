@@ -485,7 +485,7 @@ function FiveColumnDataTable() {
             const today = new Date();
             today.setHours(0, 0, 0, 0); // Normalize today to midnight
 
-            const finalDateObj = parseDateToDateObject(item.finaldelvdate);
+            const finalDateObj = parseDateToDateObject(item.ourdeldate);
             const poDateObj = parseDateToDateObject(item.date);
 
             const MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -540,14 +540,13 @@ function FiveColumnDataTable() {
 
                   <Typography variant="caption" display="block" fontSize={'0.85rem'}  backgroundColor={'#fca910ff'}>MERCH: <HighlightedText text={item.merch} highlight={searchTerm}/></Typography>
                   <Typography variant="caption" display="block" fontSize={'0.85rem'}  >abc: <HighlightedText text={item.abc} highlight={searchTerm}/> | <HighlightedText text={item.type.toLowerCase().replace("inside","in").replace("outside","out")}  highlight={searchTerm}/></Typography>
-                  <Typography variant="caption" display="block" noWrap fontSize={'0.82rem'}>OD: <HighlightedText text={item.ourdeldate} highlight={searchTerm}/></Typography>
                   <Typography variant="caption" display="block" fontSize={'0.8rem'}>DT: <HighlightedText text={item.date} highlight={searchTerm}/></Typography>
                   {poDiff !== null && (
                     <Typography variant="caption" display="block" sx={{ fontSize: '0.85rem', color: 'green', fontWeight: 'bold' }}>
                       DT :{Math.abs(poDiff)} day
                     </Typography>
                   )}
-                  <Typography variant="caption" display="block" backgroundColor='lightgreen' fontSize={'0.8rem'}>FD: {item.finaldelvdate}</Typography>
+                  <Typography variant="caption" display="block" backgroundColor='lightgreen' fontSize={'0.8rem'}>OD: {item.ourdeldate}</Typography>
                   {finalDiff !== null && (
                     <Typography variant="caption" sx={{ color: finalDiff < 0 ? 'red' : 'green', fontWeight: 'bold', display: 'block', fontSize: '0.85rem'  }}>
                       {finalDiff < 0 ? `Delayed: ${Math.abs(finalDiff)}day` : `Due: ${finalDiff}day`}

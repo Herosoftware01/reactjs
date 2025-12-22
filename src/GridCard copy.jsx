@@ -107,7 +107,9 @@ function FiveColumnDataTable() {
             u36: String(item.u36 || 'N/A'),
             u45: String(item.u45 || 'N/A'),
             u141: String(item.u141 || 'N/A'),
-            u25: String(item.u25 || 'N/A')
+            u25: String(item.u25 || 'N/A'),
+            u5: String(item.u5 || 'N/A'),
+            u31: String(item.u31 || 'N/A')
           }))
           .filter(item => item.jobno !== 'N/A');
         setRawData(data);
@@ -539,7 +541,7 @@ function FiveColumnDataTable() {
                 <Box sx={{ width: '35%', p: 1, overflow: 'hidden' }}>
 
                   <Typography variant="caption" display="block" fontSize={'0.85rem'}  backgroundColor={'#fca910ff'}>MERCH: <HighlightedText text={item.merch} highlight={searchTerm}/></Typography>
-                  <Typography variant="caption" display="block" fontSize={'0.85rem'}  >abc: <HighlightedText text={item.abc} highlight={searchTerm}/> | <HighlightedText text={item.type.toLowerCase().replace("inside","in").replace("outside","out")}  highlight={searchTerm}/></Typography>
+                  <Typography variant="caption" display="block" fontSize={'0.85rem'}  >abc: <HighlightedText text={item.abc} highlight={searchTerm}/> | <HighlightedText text={item.type.toLowerCase().replace("inside","in").replace("outside","out")}  highlight={searchTerm}/>  | <HighlightedText text={item.u31} highlight={searchTerm}/></Typography>
                   <Typography variant="caption" display="block" noWrap fontSize={'0.82rem'}>OD: <HighlightedText text={item.ourdeldate} highlight={searchTerm}/></Typography>
                   <Typography variant="caption" display="block" fontSize={'0.8rem'}>DT: <HighlightedText text={item.date} highlight={searchTerm}/></Typography>
                   {poDiff !== null && (

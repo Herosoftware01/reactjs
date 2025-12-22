@@ -73,6 +73,8 @@ function FiveColumnDataTable() {
   const [u45Filter, setU45Filter] = useState('ALL');
   const [u141Filter, setU141Filter] = useState('ALL');
   const [u25Filter, setU25Filter] = useState('ALL');
+  const [embFilter, setEmbFilter] = useState('ALL');
+  const [printFilter, setPrintFilter] = useState('ALL');
   
   const toNumber = (val) => {
     const n = Number(val);
@@ -107,7 +109,11 @@ function FiveColumnDataTable() {
             u36: String(item.u36 || 'N/A'),
             u45: String(item.u45 || 'N/A'),
             u141: String(item.u141 || 'N/A'),
-            u25: String(item.u25 || 'N/A')
+            u25: String(item.u25 || 'N/A'),
+            u5: String(item.u5 || 'N/A'),
+            u31: String(item.u31 || 'N/A'),
+            number_01_printing: String(item.number_01_printing || 'N/A'),
+            number_03_emb: String(item.number_03_emb || 'N/A')
           }))
           .filter(item => item.jobno !== 'N/A');
         setRawData(data);
@@ -152,6 +158,8 @@ function FiveColumnDataTable() {
     if (u45Filter !== 'ALL') { temp = temp.filter(item => item.u45 === u45Filter);}
     if (u25Filter !== 'ALL') { temp = temp.filter(item => item.u25 === u25Filter); }
     if (u141Filter !== 'ALL') { temp = temp.filter(item => item.u141 === u141Filter);}
+    if (printFilter !== 'ALL') { temp = temp.filter(item => item.number_01_printing === printFilter);}
+    if (embFilter !== 'ALL') { temp = temp.filter(item => item.number_03_emb === embFilter);}
     if (showOnlyWithoutImage) temp = temp.filter(item => !hasValidImage(item.image));
     if (u46Filter === 'WITH') temp = temp.filter(item => hasValidu46(item.u46));
     if (u46Filter === 'WITHOUT') temp = temp.filter(item => !hasValidu46(item.u46));
@@ -180,15 +188,15 @@ function FiveColumnDataTable() {
       const pB = getPriority(b.jobno);
       if (pA !== pB) return pA - pB;
 
-      const da = parseDateToDateObject(a.ourdeldate);
-      const db = parseDateToDateObject(b.ourdeldate);
+      const da = parseDateToDateObject(a.finaldelvdate);
+      const db = parseDateToDateObject(b.finaldelvdate);
       if (!da && !db) return 0;
       if (!da) return 1;
       if (!db) return -1;
       return sortType === 'date_asc' ? da - db : db - da;
     });
     return temp;
-  }, [rawData, jobNoSearch, showOnlyWithoutImage, u46Filter, searchTerm, sortType, jobSeriesFilter,abcFilter,typeFilter,u8Filter,u14Filter,u36Filter,u45Filter,u141Filter,u25Filter]);
+  }, [rawData, jobNoSearch, showOnlyWithoutImage, u46Filter, searchTerm, sortType, jobSeriesFilter,abcFilter,typeFilter,u8Filter,u14Filter,u36Filter,u45Filter,u141Filter,u25Filter,printFilter,embFilter]);
 
 
    /* ---------- QTY CALC ---------- */
@@ -206,25 +214,25 @@ function FiveColumnDataTable() {
   }, 0);
 }, [filteredAndSortedData]);
 
-  const getUnitColor = (unitName) => {
-    if (!unitName) return '#fff';
-    const u = unitName;
-    if (u.includes('U1')) return '#E3F2FD'; 
-    if (u.includes('U2')) return '#E8F5E9'; 
-    if (u.includes('U3')) return '#FCE4EC'; 
-    if (u.includes('U4')) return '#F3E5F5'; 
-    if (u.includes('U5')) return '#b4a9b66e'; 
-    if (u.includes('HUMUS')) return '#FFF3E0'; 
-    if (u.includes('TRILOK')) return '#FFFDE7'; 
-    if (u.includes('Raj Kn')) return '#8fcfcca6'; 
-    if (u.includes('RICHMO')) return '#E8EAF6'; 
-    if (u.includes('Sample')) return '#eccb85a8'; 
-    if (u.includes('Humus')) return '#f3b0b0a8'; 
-    if (u.includes('Stock')) return '#f3949486'; 
-    if (u.includes('Prime')) return '#F9FBE7'; 
-    if (u.includes('Indoli')) return '#d4e2589a'; 
-    return '#fff'; 
-  };
+  // const getUnitColor = (unitName) => {
+  //   if (!unitName) return '#fff';
+  //   const u = unitName;
+  //   if (u.includes('U1')) return '#E3F2FD'; 
+  //   if (u.includes('U2')) return '#E8F5E9'; 
+  //   if (u.includes('U3')) return '#FCE4EC'; 
+  //   if (u.includes('U4')) return '#F3E5F5'; 
+  //   if (u.includes('U5')) return '#b4a9b66e'; 
+  //   if (u.includes('HUMUS')) return '#FFF3E0'; 
+  //   if (u.includes('TRILOK')) return '#FFFDE7'; 
+  //   if (u.includes('Raj Kn')) return '#8fcfcca6'; 
+  //   if (u.includes('RICHMO')) return '#E8EAF6'; 
+  //   if (u.includes('Sample')) return '#eccb85a8'; 
+  //   if (u.includes('Humus')) return '#f3b0b0a8'; 
+  //   if (u.includes('Stock')) return '#f3949486'; 
+  //   if (u.includes('Prime')) return '#F9FBE7'; 
+  //   if (u.includes('Indoli')) return '#d4e2589a'; 
+  //   return '#fff'; 
+  // };
 
   if (loading) return <Box p={5} textAlign="center"><CircularProgress /></Box>;
   if (error) return <Box p={2}><Alert severity="error">{error}</Alert></Box>;
@@ -234,7 +242,7 @@ function FiveColumnDataTable() {
       <Box 
         sx={{ 
           position: 'sticky', top: 0, zIndex: 10, bgcolor: 'background.paper',
-          borderBottom: 1, borderColor: 'divider', p: 1, ml:3
+          borderBottom: 1, borderColor: 'divider', p: 1
         }}
       >
         <Box
@@ -248,7 +256,7 @@ function FiveColumnDataTable() {
           <TextField
             size="small" label="Global Search" value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            sx={{ gridColumn: { xs: 'span 5', md: 'auto' } }}
+            sx={{ gridColumn: { xs: 'span 5', md: 'auto' }, ml: 3,  }}
           />
 
           <Button 
@@ -349,6 +357,7 @@ function FiveColumnDataTable() {
               <MenuItem value="ALL">All</MenuItem>
               <MenuItem value="O">O </MenuItem>
               <MenuItem value="R">R</MenuItem>
+              <MenuItem value="N/A">N/A</MenuItem>
             </TextField>
 
           <TextField
@@ -366,6 +375,7 @@ function FiveColumnDataTable() {
               <MenuItem value="O">O </MenuItem>
               <MenuItem value="N">N </MenuItem>
               <MenuItem value="R">R</MenuItem>
+              <MenuItem value="N/A">N/A</MenuItem>
             </TextField>
 
           <TextField
@@ -382,6 +392,7 @@ function FiveColumnDataTable() {
               <MenuItem value="ALL">All</MenuItem>
               <MenuItem value="N">N </MenuItem>
               <MenuItem value="R">R</MenuItem>
+              <MenuItem value="N/A">N/A</MenuItem>
             </TextField>
 
           <TextField
@@ -397,6 +408,7 @@ function FiveColumnDataTable() {
             >
               <MenuItem value="ALL">All</MenuItem>
               <MenuItem value="R">R</MenuItem>
+              <MenuItem value="N/A">N/A</MenuItem>
             </TextField>
 
           <TextField
@@ -413,6 +425,42 @@ function FiveColumnDataTable() {
               <MenuItem value="ALL">All</MenuItem>
               <MenuItem value="R">R</MenuItem>
               <MenuItem value="O">O</MenuItem>
+              <MenuItem value="N/A">N/A</MenuItem>
+            </TextField>
+            
+          <TextField
+              select
+              size="small"
+              label="Print"
+              value={printFilter}
+              onChange={e => setPrintFilter(e.target.value)}
+              sx={{ 
+                gridColumn: { xs: 'span 4', md: 'auto' },
+                display: { xs: showFiltersMobile ? 'flex' : 'none', md: 'flex' }
+              }}
+            >
+              <MenuItem value="ALL">All</MenuItem>
+              <MenuItem value="R">R</MenuItem>
+              <MenuItem value="O">O</MenuItem>
+              <MenuItem value="N">N</MenuItem>
+              <MenuItem value="N/A">N/A</MenuItem>
+            </TextField>
+
+          <TextField
+              select
+              size="small"
+              label="Emb"
+              value={embFilter}
+              onChange={e => setEmbFilter(e.target.value)}
+              sx={{ 
+                gridColumn: { xs: 'span 4', md: 'auto' },
+                display: { xs: showFiltersMobile ? 'flex' : 'none', md: 'flex' }
+              }}
+            >
+              <MenuItem value="ALL">All</MenuItem>
+              <MenuItem value="R">R</MenuItem>
+              <MenuItem value="N">N</MenuItem>
+              <MenuItem value="N/A">N/A</MenuItem>
             </TextField>
 
             <TextField
@@ -446,6 +494,7 @@ function FiveColumnDataTable() {
             <MenuItem value="ALL">All</MenuItem>
             <MenuItem value="WITH">With</MenuItem>
             <MenuItem value="WITHOUT">W/O</MenuItem>
+            <MenuItem value="N/A">N/A</MenuItem>
           </TextField>
 
           <TextField
@@ -485,7 +534,7 @@ function FiveColumnDataTable() {
             const today = new Date();
             today.setHours(0, 0, 0, 0); // Normalize today to midnight
 
-            const finalDateObj = parseDateToDateObject(item.ourdeldate);
+            const finalDateObj = parseDateToDateObject(item.finaldelvdate);
             const poDateObj = parseDateToDateObject(item.date);
 
             const MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -500,59 +549,82 @@ function FiveColumnDataTable() {
               ? Math.ceil((poDateObj - today) / MS_PER_DAY) 
               : null;
 
-    
-
             return (
-              <Card key={i} sx={{ display: 'flex', height: 160, bgcolor: getUnitColor(item.unit), position: 'relative' }}>
-                {/* Serial Number Badge */}
-                <Avatar 
-                  sx={{ 
-                    width: 20, height: 20, fontSize: '0.7rem', 
-                    bgcolor: 'rgba(0,0,0,0.6)', color: 'white',
-                    position: 'absolute', top: 5, right: 5, zIndex: 1
-                  }}
-                >
+              <Card
+                key={i}
+                sx={{ display: 'flex', flexDirection: 'column', height: 320, position: 'relative'}}>
+                <Avatar
+                  sx={{ width: 20, height: 20, fontSize: '0.7rem', bgcolor: 'rgba(0,0,0,0.6)', color: 'white', position: 'absolute', top: 5, right: 5, zIndex: 1 }}>
                   {i + 1}
                 </Avatar>
 
-                <Box sx={{ width: '35%', bgcolor: '#fff' }}>
-                  {hasValidImage(item.image) ? (
-                    <CardMedia component="img" image={item.image} sx={{ height: '100%', objectFit: 'contain' }} />
-                  ) : (
-                    <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.100' }}>
-                      <Typography variant="caption">No Image</Typography>
-                    </Box>
-                  )}
+                <Box sx={{ display: 'flex', height: '50%'}}>
+                  <Box sx={{ width: '30%', bgcolor: '#fff' }}>
+                    {hasValidImage(item.image) ? (
+                      <CardMedia component="img" image={item.image} sx={{ height: '100%', objectFit: 'contain' }} />
+                    ) : (
+                      <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Typography variant="caption">No Image</Typography>
+                      </Box>
+                    )}
+                  </Box>
+
+                  <Box sx={{ width: '30%', p: 1, overflow: 'hidden', bgcolor: 'lightblue' }}>
+                    <Typography fontWeight="bold" variant="body2" noWrap fontSize={'1.2rem'}>
+                      <HighlightedText text={item.jobno} highlight={searchTerm || jobNoSearch} />
+                    </Typography>
+                    <Typography variant="caption" display="block" noWrap fontSize={'0.8rem'} backgroundColor={'#fc101096'} ><HighlightedText text={item.buyer} highlight={searchTerm} /></Typography>
+                    <Typography variant="caption" display="block" noWrap fontSize={'0.8rem'}>PO: <HighlightedText text={item.pono} highlight={searchTerm}/></Typography>
+                    <Typography variant="caption" display="block" fontSize={'0.9rem'}>UNIT: <HighlightedText text={item.unit} highlight={searchTerm}/></Typography>
+                    <Typography variant="caption" display="block" fontSize={'0.9rem'}>QTY: {item.qty}</Typography>
+                    <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>ST: <HighlightedText text={item.styleno} highlight={searchTerm}/></Typography>
+                  </Box>
+
+                  <Box sx={{ width: '40%', p: 1, bgcolor: 'lightgray'}}>
+                    <Typography variant="caption" display="block" fontSize={'0.85rem'}  backgroundColor={'#fca910d5'}>MERCH: <HighlightedText text={item.merch} highlight={searchTerm}/></Typography>
+                    <Typography variant="caption" display="block" fontSize={'0.85rem'}  >abc: <HighlightedText text={item.abc} highlight={searchTerm}/> | <HighlightedText text={item.u31} highlight={searchTerm}/></Typography>
+                    <Typography variant="caption" display="block" noWrap fontSize={'0.82rem'}>OD: <HighlightedText text={item.ourdeldate} highlight={searchTerm}/></Typography>
+                    <Typography variant="caption" display="block" fontSize={'0.8rem'}>DT: <HighlightedText text={item.date} highlight={searchTerm}/></Typography>
+                    {poDiff !== null && (
+                      <Typography variant="caption" display="block" sx={{ fontSize: '0.85rem', color: 'green', fontWeight: 'bold' }}>
+                        DT :{Math.abs(poDiff)} day
+                      </Typography>
+                    )}
+                    <Typography variant="caption" display="block" fontSize={'0.8rem'}>FD: {item.finaldelvdate}</Typography>
+                    {finalDiff !== null && (
+                      <Typography variant="caption" sx={{ color: finalDiff < 0 ? 'red' : 'green', fontWeight: 'bold', display: 'block', fontSize: '0.85rem'  }}>
+                        {finalDiff < 0 ? `Delayed: ${Math.abs(finalDiff)}day` : `Due: ${finalDiff}day`}
+                      </Typography>
+                    )}
+                  </Box>
                 </Box>
 
-                <Box sx={{ width: '35%', p: 1, overflow: 'hidden'}}>
-                  <Typography fontWeight="bold" variant="body2" noWrap fontSize={'1.2rem'}>
-                    <HighlightedText text={item.jobno} highlight={searchTerm || jobNoSearch} />
-                  </Typography>
-                  <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>PO: <HighlightedText text={item.pono} highlight={searchTerm}/></Typography>
-                  <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}><HighlightedText text={item.buyer} highlight={searchTerm}/></Typography>
-                  <Typography variant="caption" display="block" fontSize={'0.9rem'}>UNIT: <HighlightedText text={item.unit} highlight={searchTerm}/></Typography>
-                  <Typography variant="caption" display="block" fontSize={'0.9rem'}>QTY: {item.qty}</Typography>
-                  <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>ST: <HighlightedText text={item.styleno} highlight={searchTerm}/></Typography>
-                </Box>
+                {/* ================= ROW 2 ================= */}
+                <Box sx={{ display: 'flex', height: '50%', overflow: 'hidden'}}>
 
-                <Box sx={{ width: '35%', p: 1, overflow: 'hidden' }}>
+                  <Box sx={{ width: '30%', overflow: 'hidden',  bgcolor: item.number_01_printing === 'R' ? 'orange' : 'light' }}>
+                    <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'} backgroundColor={'#02cafcb4'}>1PRI: <HighlightedText text={item.number_01_printing} highlight={searchTerm}/></Typography>
+                    <Typography variant="caption" display="block" fontSize={'0.9rem'} >UNIT: <HighlightedText text={item.unit} highlight={searchTerm}/></Typography>
+                    <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>3EMB: <HighlightedText text={item.number_03_emb} highlight={searchTerm}/></Typography>
+                    <Typography variant="caption" display="block" fontSize={'0.9rem'}>QTY: {item.qty}</Typography>
+                    <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>ST: <HighlightedText text={item.styleno} highlight={searchTerm}/></Typography>
+                  </Box>
 
-                  <Typography variant="caption" display="block" fontSize={'0.85rem'}  backgroundColor={'#fca910ff'}>MERCH: <HighlightedText text={item.merch} highlight={searchTerm}/></Typography>
-                  <Typography variant="caption" display="block" fontSize={'0.85rem'}  >abc: <HighlightedText text={item.abc} highlight={searchTerm}/> | <HighlightedText text={item.type.toLowerCase().replace("inside","in").replace("outside","out")}  highlight={searchTerm}/></Typography>
-                  <Typography variant="caption" display="block" fontSize={'0.8rem'}>U46: <HighlightedText text={item.u46} highlight={searchTerm}/></Typography>
-                  <Typography variant="caption" display="block" fontSize={'0.8rem'}>DT: <HighlightedText text={item.date} highlight={searchTerm}/></Typography>
-                  {poDiff !== null && (
-                    <Typography variant="caption" display="block" sx={{ fontSize: '0.85rem', color: 'green', fontWeight: 'bold' }}>
-                      DT :{Math.abs(poDiff)} day
-                    </Typography>
-                  )}
-                  <Typography variant="caption" display="block" backgroundColor='lightgreen' fontSize={'0.8rem'}>OD: {item.ourdeldate}</Typography>
-                  {finalDiff !== null && (
-                    <Typography variant="caption" sx={{ color: finalDiff < 0 ? 'red' : 'green', fontWeight: 'bold', display: 'block', fontSize: '0.85rem'  }}>
-                      {finalDiff < 0 ? `Delayed: ${Math.abs(finalDiff)}day` : `Due: ${finalDiff}day`}
-                    </Typography>
-                  )}
+                  <Box sx={{ width: '30%', p: 1, overflow: 'hidden', bgcolor: 'lightsalmon'}}>
+                    <Typography variant="caption" display="block" fontSize={'0.9rem'} bgcolor={'lightslategrey'}>UNIT: <HighlightedText text={item.unit} highlight={searchTerm}/></Typography>
+                    <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>PO: <HighlightedText text={item.pono} highlight={searchTerm}/></Typography>
+                    <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}><HighlightedText text={item.buyer} highlight={searchTerm}/></Typography>
+                    <Typography variant="caption" display="block" fontSize={'0.9rem'}>QTY: {item.qty}</Typography>
+                    <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>ST: <HighlightedText text={item.styleno} highlight={searchTerm}/></Typography>
+                  </Box>
+
+                  <Box sx={{ width: '40%', p: 1, overflow: 'hidden', bgcolor: 'lightpink'}}>
+                    <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'} bgcolor={'lightsteelblue'}><HighlightedText text={item.type.toLowerCase().replace("inside","in").replace("outside","out")}  highlight={searchTerm}/></Typography>
+                    <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}><HighlightedText text={item.buyer} highlight={searchTerm}/></Typography>
+                    <Typography variant="caption" display="block" fontSize={'0.9rem'}>UNIT: <HighlightedText text={item.unit} highlight={searchTerm}/></Typography>
+                    <Typography variant="caption" display="block" fontSize={'0.9rem'}>QTY: {item.qty}</Typography>
+                    <Typography variant="caption" display="block" noWrap fontSize={'0.9rem'}>ST: <HighlightedText text={item.styleno} highlight={searchTerm}/></Typography>
+                  </Box>
                 </Box>
               </Card>
             );

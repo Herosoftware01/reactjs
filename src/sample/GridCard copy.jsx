@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Box, 
   Typography, 
@@ -76,6 +77,8 @@ function FiveColumnDataTable() {
   const [embFilter, setEmbFilter] = useState('ALL');
   const [printFilter, setPrintFilter] = useState('ALL');
   
+  const navigate = useNavigate()
+
   const toNumber = (val) => {
     const n = Number(val);
     return isNaN(n) ? 0 : n;
@@ -242,7 +245,7 @@ function FiveColumnDataTable() {
       <Box 
         sx={{ 
           position: 'sticky', top: 0, zIndex: 10, bgcolor: 'background.paper',
-          borderBottom: 1, borderColor: 'divider', p: 1, ml:3
+          borderBottom: 1, borderColor: 'divider', p: 1
         }}
       >
         <Box
@@ -256,7 +259,7 @@ function FiveColumnDataTable() {
           <TextField
             size="small" label="Global Search" value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            sx={{ gridColumn: { xs: 'span 5', md: 'auto' } }}
+            sx={{ gridColumn: { xs: 'span 5', md: 'auto' }, ml:3}}
           />
 
           <Button 
@@ -510,7 +513,17 @@ function FiveColumnDataTable() {
               ml: 0, '& .MuiFormControlLabel-label': { fontSize: {xs: '0.65rem', md: '1rem' }}
             }}
           />
-
+            <Button 
+              variant="contained" 
+              size="small"
+              onClick={() => navigate('/')}
+              sx={{ 
+                gridColumn: { xs: 'span 2', md: 'auto' }, 
+                height: '40px'
+              }}
+            >
+              Back
+            </Button>
         </Box>
       </Box>
 

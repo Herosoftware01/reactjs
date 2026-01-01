@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Box, 
   Typography, 
@@ -73,7 +74,11 @@ function FiveColumnDataTable() {
   const [u45Filter, setU45Filter] = useState('ALL');
   const [u141Filter, setU141Filter] = useState('ALL');
   const [u25Filter, setU25Filter] = useState('ALL');
+  const [embFilter, setEmbFilter] = useState('ALL');
+  const [printFilter, setPrintFilter] = useState('ALL');
   
+  const navigate = useNavigate()
+
   const toNumber = (val) => {
     const n = Number(val);
     return isNaN(n) ? 0 : n;
@@ -109,7 +114,9 @@ function FiveColumnDataTable() {
             u141: String(item.u141 || 'N/A'),
             u25: String(item.u25 || 'N/A'),
             u5: String(item.u5 || 'N/A'),
-            u31: String(item.u31 || 'N/A')
+            u31: String(item.u31 || 'N/A'),
+            number_01_printing: String(item.number_01_printing || 'N/A'),
+            number_03_emb: String(item.number_03_emb || 'N/A')
           }))
           .filter(item => item.jobno !== 'N/A');
         setRawData(data);
@@ -154,6 +161,8 @@ function FiveColumnDataTable() {
     if (u45Filter !== 'ALL') { temp = temp.filter(item => item.u45 === u45Filter);}
     if (u25Filter !== 'ALL') { temp = temp.filter(item => item.u25 === u25Filter); }
     if (u141Filter !== 'ALL') { temp = temp.filter(item => item.u141 === u141Filter);}
+    if (printFilter !== 'ALL') { temp = temp.filter(item => item.number_01_printing === printFilter);}
+    if (embFilter !== 'ALL') { temp = temp.filter(item => item.number_03_emb === embFilter);}
     if (showOnlyWithoutImage) temp = temp.filter(item => !hasValidImage(item.image));
     if (u46Filter === 'WITH') temp = temp.filter(item => hasValidu46(item.u46));
     if (u46Filter === 'WITHOUT') temp = temp.filter(item => !hasValidu46(item.u46));
@@ -190,7 +199,7 @@ function FiveColumnDataTable() {
       return sortType === 'date_asc' ? da - db : db - da;
     });
     return temp;
-  }, [rawData, jobNoSearch, showOnlyWithoutImage, u46Filter, searchTerm, sortType, jobSeriesFilter,abcFilter,typeFilter,u8Filter,u14Filter,u36Filter,u45Filter,u141Filter,u25Filter]);
+  }, [rawData, jobNoSearch, showOnlyWithoutImage, u46Filter, searchTerm, sortType, jobSeriesFilter,abcFilter,typeFilter,u8Filter,u14Filter,u36Filter,u45Filter,u141Filter,u25Filter,printFilter,embFilter]);
 
 
    /* ---------- QTY CALC ---------- */
@@ -236,7 +245,7 @@ function FiveColumnDataTable() {
       <Box 
         sx={{ 
           position: 'sticky', top: 0, zIndex: 10, bgcolor: 'background.paper',
-          borderBottom: 1, borderColor: 'divider', p: 1, ml:3
+          borderBottom: 1, borderColor: 'divider', p: 1
         }}
       >
         <Box
@@ -250,7 +259,7 @@ function FiveColumnDataTable() {
           <TextField
             size="small" label="Global Search" value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            sx={{ gridColumn: { xs: 'span 5', md: 'auto' } }}
+            sx={{ gridColumn: { xs: 'span 5', md: 'auto' }, ml:3}}
           />
 
           <Button 
@@ -416,6 +425,39 @@ function FiveColumnDataTable() {
               <MenuItem value="R">R</MenuItem>
               <MenuItem value="O">O</MenuItem>
             </TextField>
+            
+          <TextField
+              select
+              size="small"
+              label="Print"
+              value={printFilter}
+              onChange={e => setPrintFilter(e.target.value)}
+              sx={{ 
+                gridColumn: { xs: 'span 4', md: 'auto' },
+                display: { xs: showFiltersMobile ? 'flex' : 'none', md: 'flex' }
+              }}
+            >
+              <MenuItem value="ALL">All</MenuItem>
+              <MenuItem value="R">R</MenuItem>
+              <MenuItem value="O">O</MenuItem>
+              <MenuItem value="N">N</MenuItem>
+            </TextField>
+
+          <TextField
+              select
+              size="small"
+              label="Emb"
+              value={embFilter}
+              onChange={e => setEmbFilter(e.target.value)}
+              sx={{ 
+                gridColumn: { xs: 'span 4', md: 'auto' },
+                display: { xs: showFiltersMobile ? 'flex' : 'none', md: 'flex' }
+              }}
+            >
+              <MenuItem value="ALL">All</MenuItem>
+              <MenuItem value="R">R</MenuItem>
+              <MenuItem value="N">N</MenuItem>
+            </TextField>
 
             <TextField
               select
@@ -471,7 +513,17 @@ function FiveColumnDataTable() {
               ml: 0, '& .MuiFormControlLabel-label': { fontSize: {xs: '0.65rem', md: '1rem' }}
             }}
           />
-
+            <Button 
+              variant="contained" 
+              size="small"
+              onClick={() => navigate('/')}
+              sx={{ 
+                gridColumn: { xs: 'span 2', md: 'auto' }, 
+                height: '40px'
+              }}
+            >
+              Back
+            </Button>
         </Box>
       </Box>
 
